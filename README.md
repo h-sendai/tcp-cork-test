@@ -1,4 +1,4 @@
-# serverプログラム
+# TCP CORK serverプログラム
 ```
 Usage: server [-p port] [-k] [-D] 
 -p port: port number (1234)
