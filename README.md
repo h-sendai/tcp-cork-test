@@ -20,15 +20,20 @@ https://man7.org/linux/man-pages/man7/tcp.7.html
 ## serverプログラムの起動方法
 
 ```
-Usage: server [-p port] [-k] [-D] 
+Usage: server [-p port] [-k] [-D] [-A]
 -p port: port number (1234)
 -k:      use TCP_CORK
 -D:      use TCP_NODELAY
+-A:      Accumurate each write() bytes
 ```
 
+write()の動作は
 100バイトのデータを連続10回write()する。
 10回のwrite()後、sleep(1)で1秒休み。
 これを5セット繰り返して終了。
+
+``TCP_CORK``、``TCP_NODELAY``のオプションを設定する
+タイミングについては下記を参照。
 
 tcpdumpして、適当なクライアントで接続して、
 何バイトのパケットが送られるか観察する。
