@@ -17,6 +17,8 @@ https://man7.org/linux/man-pages/man7/tcp.7.html
 > 2.5.71.  This option should not be used in code intended
 > to be portable.
 
+## serverプログラムの起動方法
+
 ```
 Usage: server [-p port] [-k] [-D] 
 -p port: port number (1234)
