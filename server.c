@@ -31,26 +31,33 @@ int set_so_cork(int sockfd, int value)
     return 0;
 }
 
-int child_proc(int connfd, int use_nodelay, int use_cork)
+int child_proc(int connfd, int use_cork, int use_nodelay)
 {
+    fprintfwt(stderr, "use_cork: %d, use_nodelay: %d\n", use_cork, use_nodelay);
+
+    if (use_nodelay) {
+        if (set_so_nodelay(connfd) < 0) {
+            errx(1, "set_so_nodelay");
+        }
+    }
+
     for (int n_loop = 0; n_loop < 5; ++n_loop) {
         for (int i = 0; i < 10; ++i) {
             unsigned char buf[100];
-            if (use_nodelay) {
-                if (set_so_nodelay(connfd) < 0) {
-                    errx(1, "set_so_nodelay");
-                }
-            }
             if (use_cork) {
-                set_so_cork(connfd, 1);
+                if (set_so_cork(connfd, 1) < 0) {
+                    errx(1, "set_so_cork(, 1)");
+                }
             }
             int n = write(connfd, buf, sizeof(buf));
             if (n < 0) {
                 err(1, "write");
             }
-        }
-        if (use_cork) {
-            set_so_cork(connfd, 0);
+            if (use_cork) {
+                if (set_so_cork(connfd, 0) < 0) {
+                    errx(1, "set_so_cork(, 0)");
+                }
+            }
         }
         sleep(1);
     }
@@ -88,8 +95,8 @@ int main(int argc, char *argv[])
     struct sockaddr_in remote;
     socklen_t addr_len = sizeof(struct sockaddr_in);
     int listenfd;
-    int use_nodelay = 0;
     int use_cork    = 0;
+    int use_nodelay = 0;
 
     int c;
     while ( (c = getopt(argc, argv, "dDhkp:")) != -1) {
@@ -131,17 +138,17 @@ int main(int argc, char *argv[])
         }
         
         pid = fork();
-        if (pid == 0) { //child
+        if (pid == 0) { // child process
             if (close(listenfd) < 0) {
                 err(1, "close listenfd");
             }
-            if (child_proc(connfd, use_nodelay, use_cork) < 0) {
+            if (child_proc(connfd, use_cork, use_nodelay) < 0) {
                 errx(1, "child_proc");
             }
             fprintfwt(stderr, "main: child_proc() returned\n");
             exit(0);
         }
-        else { // parent
+        else { // parent process
             if (close(connfd) < 0) {
                 err(1, "close for accept socket of parent");
             }
