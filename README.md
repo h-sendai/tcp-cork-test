@@ -142,6 +142,7 @@ for (int i = 0; i < 10; ++i) {
 }
 set_so_cork(connfd, 0); /* flush */
 sleep(1);
+```
 のようにwrite(100バイト)を貯めておいて、1回のwrite()で
 ためた分を送信することができる。
 
